@@ -2,11 +2,15 @@
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
 import { useEffect, useRef, useState } from "react";
-
-type CopyStatus = "idle" | "copied" | "error";
+import {
+  COPY_STATUS_RESET_MS,
+  CopyStatus,
+  copyStatusClasses,
+  defaultCopyStatusMessages,
+} from "./copy-status";
 
 export default function UuidGenerator() {
   const [uuid, setUuid] = useState("");
@@ -23,7 +27,7 @@ export default function UuidGenerator() {
 
   const resetStatus = () => {
     if (timeoutRef.current) clearTimeout(timeoutRef.current);
-    timeoutRef.current = setTimeout(() => setStatus("idle"), 2500);
+    timeoutRef.current = setTimeout(() => setStatus("idle"), COPY_STATUS_RESET_MS);
   };
 
   const generateUuid = () => {
@@ -45,7 +49,7 @@ export default function UuidGenerator() {
   };
 
   const statusMessage =
-    status === "copied" ? "UUID copied" : status === "error" ? "Copy failed" : "";
+    status === "idle" ? "\u00A0" : { ...defaultCopyStatusMessages, copied: "UUID copied" }[status];
 
   return (
     <Card className="max-w-xl">
@@ -63,14 +67,10 @@ export default function UuidGenerator() {
           </Button>
           <Badge
             aria-live="polite"
-            className={`text-xs font-medium transition-all duration-300 ease-in-out border-transparent
-              ${status === "copied" ? "bg-emerald-100 text-emerald-700 opacity-100" : ""}
-              ${status === "error" ? "bg-rose-100 text-rose-700 opacity-100" : ""}
-              ${status === "idle" ? "opacity-0 translate-y-1 pointer-events-none" : "translate-y-0"}
-            `}
+            className={`text-xs font-medium transition-all duration-300 ease-in-out border-transparent ${copyStatusClasses[status]}`}
           >
             {/* Use a fallback character to maintain height when text is empty */}
-            {status === "idle" ? "\u00A0" : statusMessage}
+            {statusMessage}
           </Badge>
         </div>
       </CardContent>
