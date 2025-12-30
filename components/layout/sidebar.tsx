@@ -10,21 +10,30 @@ import {
 } from "lucide-react";
 import { useState } from "react";
 import { Button } from "../ui/button";
+import { usePathname } from "next/navigation";
 
 type NavLink = {
   href: string;
   label: string;
-  isActive: boolean;
+  isEnabled: boolean;
   icon: LucideIcon;
 };
 
 export default function Sidebar() {
   const navLinks: NavLink[] = [
-    { href: "/dashboard", label: "Dashboard", isActive: true, icon: LayoutDashboard },
-    { href: "#a", label: "Excel Parser", isActive: false, icon: FileSpreadsheet },
-    { href: "#b", label: "Env Tools", isActive: false, icon: Settings },
-    { href: "#c", label: "Generators", isActive: false, icon: Key },
+    { href: "/dashboard", label: "Dashboard", isEnabled: true, icon: LayoutDashboard },
+    {
+      href: "/dashboard/excel-parser",
+      label: "Excel Parser",
+      isEnabled: false,
+      icon: FileSpreadsheet,
+    },
+    { href: "/dashboard/env-tools", label: "Env Tools", isEnabled: false, icon: Settings },
+    { href: "/dashboard/generators", label: "Generators", isEnabled: false, icon: Key },
   ];
+
+  const pathname = usePathname();
+  console.log(pathname);
 
   const [collapsed, setCollapsed] = useState(false);
   return (
@@ -45,18 +54,25 @@ export default function Sidebar() {
         </Button>
       </div>{" "}
       <nav className="space-y-1 px-2">
-        {navLinks.map((link) => (
-          <Link
-            key={link.label}
-            href={link.href}
-            className="flex items-center gap-3 rounded-md px-3 py-2 text-sm text-muted-foreground hover:bg-accent hover:text-foreground"
-            aria-disabled={!link.isActive}
-            tabIndex={link.isActive ? 0 : -1}
-          >
-            <link.icon className="h-4 w-4 me-1" />
-            {!collapsed && <span>{link.label}</span>}
-          </Link>
-        ))}
+        {navLinks.map((link) => {
+          const isActive = pathname === link.href;
+
+          return (
+            <Link
+              key={link.label}
+              href={link.href}
+              className={`flex items-center gap-3 rounded-md px-3 py-2 text-sm transition
+                ${
+                  isActive
+                    ? "bg-accent text-foreground"
+                    : "text-muted-foreground hover:bg-accent hover:text-foreground"
+                }`}
+            >
+              <link.icon className="h-4 w-4 me-1" />
+              {!collapsed && <span>{link.label}</span>}
+            </Link>
+          );
+        })}
       </nav>
     </aside>
   );
