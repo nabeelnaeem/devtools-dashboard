@@ -23,7 +23,7 @@ export default function UuidGenerator() {
 
   const resetStatus = () => {
     if (timeoutRef.current) clearTimeout(timeoutRef.current);
-    timeoutRef.current = setTimeout(() => setStatus("idle"), 1600);
+    timeoutRef.current = setTimeout(() => setStatus("idle"), 2500);
   };
 
   const generateUuid = () => {
@@ -63,17 +63,14 @@ export default function UuidGenerator() {
           </Button>
           <Badge
             aria-live="polite"
-            className={`text-xs font-medium transition-all duration-200
-              ${status === "copied" ? "bg-emerald-100 text-emerald-700" : ""}
-              ${status === "error" ? "bg-rose-100 text-rose-700" : ""}
-              ${
-                status === "idle"
-                  ? "opacity-0 scale-95 -translate-y-1 pointer-events-none"
-                  : "opacity-100 scale-100 translate-y-0"
-              }
+            className={`text-xs font-medium transition-all duration-300 ease-in-out border-transparent
+              ${status === "copied" ? "bg-emerald-100 text-emerald-700 opacity-100" : ""}
+              ${status === "error" ? "bg-rose-100 text-rose-700 opacity-100" : ""}
+              ${status === "idle" ? "opacity-0 translate-y-1 pointer-events-none" : "translate-y-0"}
             `}
           >
-            {statusMessage || " "}
+            {/* Use a fallback character to maintain height when text is empty */}
+            {status === "idle" ? "\u00A0" : statusMessage}
           </Badge>
         </div>
       </CardContent>
