@@ -1,11 +1,10 @@
-import DashboardLayout from "@/components/layout/dashboard-layout";
 import PageHeader from "@/components/page/page-header";
 import UsageCard from "./_components/usage-card";
 import ToolCard from "./_components/tool-card";
 
 export default function DashboardPage() {
   return (
-    <DashboardLayout>
+    <>
       <PageHeader title="Dashboard" description="Overview of your developer tools and usage." />
 
       {/* Usage Placeholders */}
@@ -35,6 +34,6 @@ export default function DashboardPage() {
           href="/dashboard/generators"
         />
       </div>
-    </DashboardLayout>
+    </>
   );
 }
