@@ -4,52 +4,24 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
-import { useEffect, useRef, useState } from "react";
-import {
-  COPY_STATUS_RESET_MS,
-  CopyStatus,
-  copyStatusClasses,
-  defaultCopyStatusMessages,
-} from "./copy-status";
+import { useState } from "react";
+import { copyStatusClasses } from "@/lib/constants";
+import { useCopy } from "@/hooks/use-copy";
 
 export default function UuidGenerator() {
   const [uuid, setUuid] = useState("");
-  const [status, setStatus] = useState<CopyStatus>("idle");
-  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
-
-  useEffect(() => {
-    return () => {
-      if (timeoutRef.current) {
-        clearTimeout(timeoutRef.current);
-      }
-    };
-  }, []);
-
-  const resetStatus = () => {
-    if (timeoutRef.current) clearTimeout(timeoutRef.current);
-    timeoutRef.current = setTimeout(() => setStatus("idle"), COPY_STATUS_RESET_MS);
-  };
+  const { status, statusMessage, copy, resetStatus } = useCopy({
+    messages: { copied: "UUID Copied" },
+  });
 
   const generateUuid = () => {
     setUuid(crypto.randomUUID());
-    setStatus("idle");
+    resetStatus();
   };
 
-  const copyToClipboard = async () => {
-    if (!uuid) return;
-    try {
-      await navigator.clipboard.writeText(uuid);
-      setStatus("copied");
-    } catch (error) {
-      setStatus("error");
-      console.log("Error copying UUID ", error);
-    } finally {
-      resetStatus();
-    }
+  const copyToClipboard = () => {
+    copy(uuid);
   };
-
-  const statusMessage =
-    status === "idle" ? "\u00A0" : { ...defaultCopyStatusMessages, copied: "UUID copied" }[status];
 
   return (
     <Card className="max-w-xl">
@@ -69,7 +41,6 @@ export default function UuidGenerator() {
             aria-live="polite"
             className={`text-xs font-medium transition-all duration-300 ease-in-out border-transparent ${copyStatusClasses[status]}`}
           >
-            {/* Use a fallback character to maintain height when text is empty */}
             {statusMessage}
           </Badge>
         </div>
