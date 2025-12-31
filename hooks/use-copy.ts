@@ -9,6 +9,7 @@ export function useCopy({
   onError,
 }: UseCopyOptions = {}): UseCopyReturn {
   const [status, setStatus] = useState<CopyStatus>("idle");
+  const [isCopying, setIsCopying] = useState(false);
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
@@ -29,21 +30,31 @@ export function useCopy({
 
   const copy = async (value?: string | null) => {
     if (!value) return false;
+
+    if (typeof navigator === "undefined" || !navigator.clipboard?.writeText) {
+      const err = new Error("Clipboard API is not available in this environment.");
+      setStatus("error");
+      onError?.(err);
+      scheduleReset();
+      return false;
+    }
+
+    setIsCopying(true);
     try {
       await navigator.clipboard.writeText(value);
       setStatus("copied");
       return true;
     } catch (error) {
       setStatus("error");
-      if (onError) onError(error);
-      else console.log("Error copying to clipboard", error);
+      onError ? onError(error) : console.error("Error copying to clipboard", error);
       return false;
     } finally {
+      setIsCopying(false);
       scheduleReset();
     }
   };
 
   const statusMessage =
     status === "idle" ? FALLBACK_MESSAGE : { ...defaultMessages, ...messages }[status];
-  return { status, statusMessage, copy, resetStatus };
+  return { status, statusMessage, copy, resetStatus, isCopying };
 }

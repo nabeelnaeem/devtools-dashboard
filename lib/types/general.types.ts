@@ -10,6 +10,7 @@ export type UseCopyReturn = {
   statusMessage: string;
   copy: (value?: string | null) => Promise<boolean>;
   resetStatus: () => void;
+  isCopying: boolean;
 };
 
 export type CopyStatus = "idle" | "copied" | "error";
